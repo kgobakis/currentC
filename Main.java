@@ -7,8 +7,10 @@ import java.sql.ResultSet;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-public class Main {
-	
+import javax.swing.JOptionPane;
+
+public class Main{
+	ResultSet set = null;
 	public static void main (String args[]) throws Exception {
 		
 		createTable();
@@ -17,7 +19,7 @@ public class Main {
 		//get();
 		
 	}
-
+//////////////////////--------------------------FORMING CONNECTION WITH DATABASE -------------------------------///////////////////////////////////
 	public static Connection getConnection() throws Exception{
 
 		try {
@@ -39,7 +41,7 @@ public class Main {
 		
 		return null;
 	}
-	
+//////////////////////--------------------------CREATING USERS TABLE -------------------------------///////////////////////////////////	
 	public static void createTable() throws Exception{
 		Connection con = getConnection();
 		try {
@@ -47,23 +49,30 @@ public class Main {
 PreparedStatement create = con.prepareStatement("CREATE TABLE IF NOT EXISTS Users(id int NOT NULL AUTO_INCREMENT, firstName varchar(255),"
 		+ " lastName varchar(255), PRIMARY KEY(id))");
 		create.executeUpdate();
-		
+		con.close();
 		}catch(Exception e) {
 			System.out.println(e);
 			}
 			finally {System.out.println("Function Complete!");}
 	}
 	
-
+//////////////////////--------------------------INSERTING USER INTO DATABASE -------------------------------////////////////////////////////////
 	public static void insertUser(String first, String last, String username, String password) throws Exception{
 		try {
 		Connection con = getConnection();
-		PreparedStatement insert = con.prepareStatement("INSERT INTO Users(firstName, lastName) VALUES ('"+first+"', '"+last+"')");
+		PreparedStatement insert = con.prepareStatement("INSERT INTO Users(firstName, lastName) VALUES ('"+first+"', '"+last+"')"
+				, Statement.RETURN_GENERATED_KEYS);
+
 		insert.executeUpdate();
-		
-		userCredentialTable(first,  last,  username,  password);
+		ResultSet result  = insert.getGeneratedKeys();
+		int id = 0;
+		if(result.next()) {
+			id =result.getInt(1);
+		}
+
+		userCredentialTable(id, first,  last,  username,  password);
 		//userTable();
-		
+		con.close();
 		} catch(Exception e) {System.out.println(e);}
 		finally {
 			System.out.println("User Insertion Complete!");
@@ -101,24 +110,47 @@ PreparedStatement create = con.prepareStatement("CREATE TABLE IF NOT EXISTS User
 	PreparedStatement insert = con.prepareStatement("INSERT INTO Currencies(xml)"
 			+ "SELECT * FROM OPENROWSET (BULK, 'https://www.ecb.europa.eu/stats/eurofxref/eurofxref-daily.xml', SINGLE_BLOB) AS x ");
 	insert.executeUpdate();
+	con.close();
 	}
 	
 //////////////////////--------------------------USER'S CREDENTIALS TABLE -------------------------------///////////////////////////////////
-	public static void userCredentialTable(String first, String last, String username, String password) throws Exception{
+	public static void userCredentialTable(int id, String first, String last, String username, String password) throws Exception{
 		try {
 			Connection con = getConnection();
 PreparedStatement create = con.prepareStatement("CREATE TABLE IF NOT EXISTS Credentials(id int, firstName varchar(255), lastName varchar(255),"
 					+ " username varchar(255), password varchar(255), FOREIGN KEY(id) REFERENCES Users(id))");
 					create.executeUpdate();
 					
-PreparedStatement insert = con.prepareStatement("INSERT INTO Credentials(firstName, lastName, username, password) VALUES"
-					+ " ('"+first+"', '"+last+"', '"+username+"', '"+password+"')");
+PreparedStatement insert = con.prepareStatement("INSERT INTO Credentials(id, firstName, lastName, username, password) VALUES"
+					+ " ( "+id+", '"+first+"', '"+last+"', '"+username+"', '"+password+"')");
 			insert.executeUpdate();
+			con.close();
 			}
 		catch(Exception e) {System.out.println(e);}
 			finally {
 				System.out.println("Insert Completed!");
 				}
+	}
+//////////////////////--------------------------LOGIN CHECKING USER'S PASSWORD -------------------------------///////////////////////////////////	
+	public static boolean userLoginCheck(String username, String password) throws Exception{
+		boolean maybe = false;
+		try {
+			Connection con = getConnection();
+			Statement stmt = con.createStatement();
+			ResultSet results = stmt.executeQuery("SELECT username, password FROM Credentials");
+
+			while(results.next()) {
+//				System.out.print(results.getString("username"));
+//				System.out.print(" ");
+//				System.out.println(results.getString("password"));
+				if(results.getString("username").equals(username) && results.getString("password").equals(password)) { maybe = true;}
+			}
+			
+			return maybe;
+		}catch (Exception e) {
+			System.out.println(e);
+		}
+		return false;
 	}
 	
 }

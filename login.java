@@ -6,12 +6,15 @@ import javax.swing.JFrame;
 import javax.swing.JTextField;
 import javax.swing.JPasswordField;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JButton;
 import java.awt.Font;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.ActionEvent;
 
-public class login {
+public class login{
 
 	private JFrame frame;
 	private JTextField txtUsername;
@@ -76,12 +79,17 @@ public class login {
 		btnNewUser.setBounds(392, 237, 115, 29);
 		frame.getContentPane().add(btnNewUser);
 		
-//////////////////////--------------------------LOGIN BUTTON -------------------------------///////////////////////////////////		
+//////////////////////--------------------------LOGIN BUTTON -------------------------------///////////////////////////////////	
+	
 		JButton btnLogin = new JButton("Login");
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					//Main.createTable();
+					String username = txtUsername.getText();
+					String password = new String(pwdPasswork.getPassword());	
+					if (Main.userLoginCheck(username, password)) {
+						welcome wel = new welcome(); wel.run();
+						} else {JOptionPane.showMessageDialog(null, "Either Username or Password Wrong. Please Try Again!");}
 				}
 				catch (Exception e) {
 					System.out.println(e);
@@ -96,5 +104,10 @@ public class login {
 		lblCurrentc.setFont(new Font("Tahoma", Font.BOLD, 26));
 		lblCurrentc.setBounds(190, 0, 126, 50);
 		frame.getContentPane().add(lblCurrentc);
+		
+		JButton btnForgotPassword = new JButton("Forgot Password");
+		btnForgotPassword.setBounds(392, 197, 115, 29);
+		frame.getContentPane().add(btnForgotPassword);
 	}
+
 }

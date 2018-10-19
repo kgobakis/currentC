@@ -65,23 +65,34 @@ public class signup {
 		JButton btnCreate = new JButton("Create");
 		btnCreate.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				try {
-					if(!check) {
-						JOptionPane.showMessageDialog(null, "Check If Passwords Match. Then Try Again!");
-					} else {	
-						String first = textField_3.getText();
-						String last = textField_4.getText();
-						String username = textField.getText();
-						Main.createTable();
-						Main.insertUser(first, last, username, password);			
-						JOptionPane.showMessageDialog(null, "You Have Succesfully Created Your Account!");
-						frame.setVisible(false);
-						}
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
-			}
-		});
+try {				
+	
+					String first = textField_3.getText();
+					String last = textField_4.getText();
+					String username = textField.getText();
+					password = new String(passwordField.getPassword());
+					char [] input = passwordField.getPassword();
+					char [] input2 = passwordField_1.getPassword();
+					
+					
+if(isPasswordCorrect(input, input2) && (!first.isEmpty() && !last.isEmpty() && !username.isEmpty() && !password.isEmpty())) {
+	
+	Main.createTable();
+	Main.insertUser(first, last, username, password);			
+	JOptionPane.showMessageDialog(null, "You Have Succesfully Created Your Account!");
+	frame.setVisible(false);
+}
+else if ((first.isEmpty() || last.isEmpty() || username.isEmpty() || password.isEmpty())) {
+						JOptionPane.showMessageDialog(null, "Fill Out All Info Please!");
+					}
+					else {
+						JOptionPane.showMessageDialog(null, "Passwords Do Not Match!");	
+					}
+	} catch (Exception e1) {
+		e1.printStackTrace();
+	   }
+	 }
+});
 		btnCreate.setBounds(169, 332, 115, 29);
 		frame.getContentPane().add(btnCreate);
 //////////////////////--------------------------LABELS OF FIELDS-------------------------------///////////////////////////////////		
@@ -127,30 +138,9 @@ public class signup {
 		passwordField_1 = new JPasswordField();
 		passwordField_1.setBounds(151, 160, 145, 26);
 		frame.getContentPane().add(passwordField_1);
-//////////////////////--------------------------CHECK BUTTON -------------------------------///////////////////////////////////		
-		JButton btnCheck = new JButton("Check");
-		btnCheck.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				char [] input = passwordField.getPassword();
-				char [] input2 = passwordField_1.getPassword();
-				
-				
-				if(isPasswordCorrect(input, input2)) {
-					JOptionPane.showMessageDialog(null, "Passwords Match!");
-					password = new String(passwordField.getPassword());
-					check = true;
-				}else {
-					check = false;
-					
-					JOptionPane.showMessageDialog(null, "Passwords Do Not Match!");
-					
-				}
-			}
-		});
-		btnCheck.setBounds(181, 194, 93, 23);
-		frame.getContentPane().add(btnCheck);
-	}
 //////////////////////--------------------------METHOD TO CHECK IF PASSWORDS MATCH -------------------------------///////////////////////////////////	
+	
+ }
 	private static boolean isPasswordCorrect(char[] input, char[] input2) {
 	    boolean isCorrect = true;
 
